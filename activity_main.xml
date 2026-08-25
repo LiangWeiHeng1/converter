@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f0f2f5"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#ffffff"
+        android:padding="14dp"
+        android:radius="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="固定号码池"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#222222"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/fixedInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="44dp"
+            android:padding="10dp"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:background="#fafbfc"
+            android:hint="例如：01 02 03 04 05"
+            android:inputType="text"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="号码消息"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#222222"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/msgInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="44dp"
+            android:padding="10dp"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            android:background="#fafbfc"
+            android:hint="输入号码，如：01=5 02=5"
+            android:inputType="textMultiLine"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/pasteBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📋 粘贴"
+                android:textSize="13sp"
+                android:background="#28a745"
+                android:textColor="#ffffff"
+                android:padding="10dp"
+                android:minHeight="44dp"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/clearBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🗑️ 清空"
+                android:textSize="13sp"
+                android:background="#dc3545"
+                android:textColor="#ffffff"
+                android:padding="10dp"
+                android:minHeight="44dp"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#ffffff"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"
+            android:radius="8dp"
+            android:border="1dp solid #eaeef2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="#2e7d32"
+                    android:radius="4dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=" 命中固定池"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#222222"/>
+
+                <TextView
+                    android:id="@+id/hitCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="共 0 个"
+                    android:textSize="12sp"
+                    android:textColor="#888888"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/result1Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="34dp"
+                android:padding="6dp"
+                android:text="无数据"
+                android:textSize="13sp"
+                android:fontFamily="monospace"
+                android:background="#f8faff"
+                android:radius="4dp"/>
+
+            <Button
+                android:id="@+id/copy1Btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="复制"
+                android:textSize="11sp"
+                android:background="#ffffff"
+                android:border="1dp solid #d0d7de"
+                android:textColor="#444444"
+                android:padding="4dp 12dp"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#ffffff"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp"
+            android:radius="8dp"
+            android:border="1dp solid #eaeef2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="#c62828"
+                    android:radius="4dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=" 未命中固定池"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#222222"/>
+
+                <TextView
+                    android:id="@+id/missCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="共 0 个"
+                    android:textSize="12sp"
+                    android:textColor="#888888"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/result2Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="34dp"
+                android:padding="6dp"
+                android:text="无数据"
+                android:textSize="13sp"
+                android:fontFamily="monospace"
+                android:background="#f8faff"
+                android:radius="4dp"/>
+
+            <Button
+                android:id="@+id/copy2Btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="复制"
+                android:textSize="11sp"
+                android:background="#ffffff"
+                android:border="1dp solid #d0d7de"
+                android:textColor="#444444"
+                android:padding="4dp 12dp"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/copyAllBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="📋 复制全部"
+            android:textSize="13sp"
+            android:background="#4a90d9"
+            android:textColor="#ffffff"
+            android:padding="10dp 24dp"/>
+    </LinearLayout>
+</ScrollView>
