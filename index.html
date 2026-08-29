@@ -1792,6 +1792,7 @@ if (pingTeSlashMatch) {
         }
 
         async function fetchAndDisplayLottery(force = false, skipAnimation = false) {
+            console.log("🔄 开始获取开奖数据...");
             try {
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('网络请求失败');
