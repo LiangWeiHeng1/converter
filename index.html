@@ -1679,16 +1679,19 @@ if (pingTeSlashMatch) {
         }
 
         function pasteAndAppend() {
-            try {
-                var text = window.AndroidClipboard.getText();
-                if (text && text.trim()) {
-                    var input = document.getElementById("betInput");
-                    var current = input.value;
-                    var separator = (current && current.trim() !== "") ? "\n" : "";
-                    input.value = current + separator + text.trim();
-                    input.dispatchEvent(new Event("input"));
-                    input.scrollTop = input.scrollHeight;
-                }
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(function(text) {
+                    if (text && text.trim()) {
+                        var input = document.getElementById("betInput");
+                        var current = input.value;
+                        var separator = (current && current.trim() !== "") ? "\n" : "";
+                        input.value = current + separator + text.trim();
+                        input.dispatchEvent(new Event("input"));
+                        input.scrollTop = input.scrollHeight;
+                    }
+                }).catch(function() {});
+            }
+        }
             } catch (e) {}
         }
 
