@@ -1,11 +1,1987 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=app/src/main/assets/bet.html">
-    <title>投注计算器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投注计算器 · 开奖数据</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            padding: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            font-size: 20px;
+            color: #1a2332;
+            margin-bottom: 4px;
+        }
+
+        .lottery-info {
+            background: linear-gradient(135deg, #f8f9fb 0%, #eef1f5 100%);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            border: 1px solid #e2e6ea;
+        }
+        .lottery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #dce1e8;
+        }
+        .lottery-date {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a2332;
+        }
+        .lottery-period {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4f7cff;
+            background: #e8edff;
+            padding: 2px 12px;
+            border-radius: 12px;
+        }
+
+        .lottery-numbers {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            min-height: 70px;
+            flex: 1;
+        }
+
+        .number-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            border: 2px solid #e2e6ea;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+        .number-box .num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2332;
+            line-height: 1.2;
+        }
+        .number-box .draw-txt {
+            font-size: 11px;
+            color: #4a5a72;
+            line-height: 1.2;
+        }
+        .number-box.blue-ball {
+            border-color: #1565c0;
+            background: #e3f0ff;
+        }
+        .number-box.red-ball {
+            border-color: #c62828;
+            background: #ffe8e8;
+        }
+        .number-box.green-ball {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .number-box.placeholder {
+            border-color: #dce1e8;
+            background: #f8f9fb;
+            opacity: 0.6;
+        }
+        .number-box.placeholder .num,
+        .number-box.placeholder .draw-txt {
+            color: #8895aa;
+        }
+
+        .special-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ff9800;
+            padding: 0 4px;
+            letter-spacing: 1px;
+        }
+
+        .number-box.refresh-box {
+            border-color: #4f7cff;
+            background: #e8edff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-style: dashed;
+            flex-shrink: 0;
+        }
+        .number-box.refresh-box:hover {
+            background: #d0ddff;
+            transform: scale(1.05);
+        }
+        .number-box.refresh-box:active {
+            transform: scale(0.95);
+        }
+        .number-box.refresh-box .refresh-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4f7cff;
+            line-height: 1.2;
+            text-align: center;
+        }
+        .number-box.refresh-box .refresh-icon {
+            font-size: 18px;
+        }
+        .number-box.refresh-box:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .lottery-loading {
+            text-align: center;
+            color: #8895aa;
+            font-size: 13px;
+            padding: 10px 0;
+            width: 100%;
+        }
+        .lottery-error {
+            text-align: center;
+            color: #ff5e5e;
+            font-size: 13px;
+            padding: 10px 0;
+            width: 100%;
+        }
+
+        .lottery-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        .btn-secondary {
+            background: #eef1f5;
+            color: #1a2332;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background: #dce1e8;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .input-area textarea {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 12px;
+            border: 1.5px solid #dce1e8;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: none;
+            min-height: 60px;
+            overflow: hidden;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: #fafbfc;
+            line-height: 1.7;
+        }
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #4f7cff;
+            background: #ffffff;
+        }
+
+        .water-rate-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            background: #f8f9fb;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #eef1f5;
+        }
+        .water-rate-row label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a2332;
+        }
+        .water-rate-row input[type="number"] {
+            width: 70px;
+            padding: 4px 8px;
+            border: 1.5px solid #dce1e8;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            background: #ffffff;
+            transition: border-color 0.2s;
+        }
+        .water-rate-row input[type="number"]:focus {
+            outline: none;
+            border-color: #4f7cff;
+        }
+        .water-rate-row .rate-unit {
+            font-size: 14px;
+            color: #4a5a72;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: #4f7cff;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #3a66e0;
+        }
+        .btn-success {
+            background: #28a745;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .btn-danger {
+            background: #ff5e5e;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #e04444;
+        }
+        .result-box {
+            background: #f8f9fb;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 12px 0 16px 0;
+            border: 1px solid #eef1f5;
+            min-height: 60px;
+            font-size: 14px;
+            line-height: 1.8;
+            word-break: break-all;
+        }
+        .result-box div {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a2332;
+        }
+        .result-box .total-line {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a2332;
+        }
+        .result-box .total-line .num {
+            color: #4f7cff;
+        }
+        .result-box .water-line {
+            color: #ff9800;
+            font-size: 14px;
+        }
+        .result-box .special-win-line {
+            color: #1565c0;
+            font-size: 14px;
+        }
+        .result-box .other-win-line {
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        .result-box .profit-line {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .result-box .profit-line.win {
+            color: #2e7d32;
+        }
+        .result-box .profit-line.lose {
+            color: #c62828;
+        }
+        .result-box .detail-line {
+            color: #4a5a72;
+            font-size: 13px;
+        }
+        .result-box .error {
+            color: #ff5e5e;
+            font-size: 13px;
+        }
+        .result-box .empty-result {
+            color: #8895aa;
+            font-size: 13px;
+        }
+        .history {
+            border-top: 1px solid #eef1f5;
+            padding-top: 12px;
+        }
+        .history-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a2332;
+            margin-bottom: 8px;
+        }
+        .history-item {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f2f5;
+            gap: 3px;
+        }
+        .history-item .h-text {
+            font-size: 14px;
+            color: #1a2332;
+            word-break: break-all;
+            font-weight: 500;
+        }
+        .history-item .h-detail {
+            font-size: 12px;
+            color: #4f7cff;
+            word-break: break-all;
+        }
+        .history-item .h-win {
+            font-size: 12px;
+            color: #2e7d32;
+            word-break: break-all;
+        }
+        .history-item .h-lose {
+            font-size: 12px;
+            color: #c62828;
+            word-break: break-all;
+        }
+        .history-item .h-error {
+            color: #ff5e5e;
+            font-weight: 400;
+        }
+        .error-item .h-text {
+            color: #ff5e5e;
+        }
+        .empty-history {
+            color: #8895aa;
+            font-size: 13px;
+            text-align: center;
+            padding: 16px 0;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 12px;
+            color: #8895aa;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 12px 14px;
+            }
+            .btn {
+                padding: 6px 14px;
+                font-size: 13px;
+            }
+            .input-area textarea {
+                min-height: 60px;
+                font-size: 13px;
+            }
+            .number-box {
+                width: 48px;
+                height: 48px;
+                border-radius: 10px;
+            }
+            .number-box .num {
+                font-size: 16px;
+            }
+            .number-box .draw-txt {
+                font-size: 10px;
+            }
+            .special-label {
+                font-size: 12px;
+            }
+            .number-box.refresh-box .refresh-text {
+                font-size: 12px;
+            }
+            .lottery-numbers {
+                gap: 6px;
+            }
+            .lottery-row {
+                gap: 8px;
+            }
+            .water-rate-row input[type="number"] {
+                width: 60px;
+            }
+        }
+        @media (max-width: 400px) {
+            .number-box {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+            }
+            .number-box .num {
+                font-size: 13px;
+            }
+            .number-box .draw-txt {
+                font-size: 8px;
+            }
+            .special-label {
+                font-size: 10px;
+                padding: 0 2px;
+            }
+            .number-box.refresh-box .refresh-text {
+                font-size: 10px;
+            }
+            .lottery-numbers {
+                gap: 4px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <p>加载中... <a href="app/src/main/assets/bet.html">点击进入</a></p>
+    <div class="container">
+        <h1>📊 投注计算器</h1>
+
+        <div class="lottery-info" id="lotteryInfo">
+            <div class="lottery-header">
+                <span class="lottery-date" id="lotteryDate">📅 加载中...</span>
+                <span class="lottery-period" id="lotteryPeriod"></span>
+            </div>
+            <div class="lottery-row">
+                <div class="lottery-numbers" id="lotteryNumbers"></div>
+                <div class="number-box refresh-box" id="refreshLotteryBtn" style="flex-shrink:0;">
+                    <div class="refresh-icon">🔄</div>
+                    <div class="refresh-text">刷新</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="water-rate-row">
+            <label for="waterRate">💧 水钱百分比：</label>
+            <input type="number" id="waterRate" value="3" min="0" max="100" step="0.1">
+            <span class="rate-unit">%</span>
+            <span style="font-size:12px;color:#8895aa;margin-left:4px;">(投注金额 × 百分比)</span>
+        </div>
+
+        <div class="input-area">
+            <textarea id="betInput" placeholder="输入投注，一行一条"></textarea>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-success" id="pasteBtn">📋 粘贴</button>
+            <button class="btn btn-danger" onclick="clearAll()">🗑️ 清空</button>
+        </div>
+        <div class="result-box" id="resultBox">
+            <div class="empty-result">输入投注自动计算</div>
+        </div>
+        <div class="history">
+            <div class="history-title">📝 投注明细</div>
+            <div id="historyList">
+                <div class="empty-history">暂无记录</div>
+            </div>
+            <div class="status-bar"><span id="countDisplay">共 0 条</span><span id="timeDisplay"></span></div>
+        </div>
+    </div>
+
+    <script>
+        const ZODIAC_COUNT = { '马': 5, '牛': 4, '虎': 4, '兔': 4, '龙': 4, '蛇': 4, '羊': 4, '猴': 4, '鸡': 4, '狗': 4, '猪': 4,
+            '鼠': 4 };
+        const COMBO_MAP = { '二': 2, '三': 3, '四': 4, '五': 5 };
+
+        const ZODIAC_TO_NUMBERS = {
+            '马': [1, 13, 25, 37, 49],
+            '牛': [6, 18, 30, 42],
+            '虎': [5, 17, 29, 41],
+            '兔': [4, 16, 28, 40],
+            '龙': [3, 15, 27, 39],
+            '蛇': [2, 14, 26, 38],
+            '羊': [12, 24, 36, 48],
+            '猴': [11, 23, 35, 47],
+            '鸡': [10, 22, 34, 46],
+            '狗': [9, 21, 33, 45],
+            '猪': [8, 20, 32, 44],
+            '鼠': [7, 19, 31, 43]
+        };
+
+        const COLOR_TO_NUMBERS = {
+            '红': [1, 2, 7, 8, 12, 13, 18, 19, 23, 24, 29, 30, 34, 35, 40, 45, 46],
+            '绿': [5, 6, 11, 16, 17, 21, 22, 27, 28, 32, 33, 38, 39, 43, 44, 49],
+            '蓝': [3, 4, 9, 10, 14, 15, 20, 25, 26, 31, 36, 37, 41, 42, 47, 48]
+        };
+
+        function getSpecialColorNumbers(type) {
+            const colorMap = {
+                '红': [1, 2, 7, 8, 12, 13, 18, 19, 23, 24, 29, 30, 34, 35, 40, 45, 46],
+                '绿': [5, 6, 11, 16, 17, 21, 22, 27, 28, 32, 33, 38, 39, 43, 44, 49],
+                '蓝': [3, 4, 9, 10, 14, 15, 20, 25, 26, 31, 36, 37, 41, 42, 47, 48]
+            };
+            const color = type.replace(/单|双/, '');
+            const isOdd = type.includes('单');
+            const numbers = colorMap[color] || [];
+            return numbers.filter(n => (n % 2 === 1) === isOdd);
+        }
+
+        const ODD_NUMBERS = Array.from({ length: 25 }, (_, i) => i * 2 + 1);
+        const EVEN_NUMBERS = Array.from({ length: 24 }, (_, i) => (i + 1) * 2);
+        const BIG_NUMBERS = Array.from({ length: 25 }, (_, i) => i + 25);
+        const SMALL_NUMBERS = Array.from({ length: 24 }, (_, i) => i + 1);
+
+        function comb(n, k) {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            if (k > n - k) k = n - k;
+            let r = 1;
+            for (let i = 1; i <= k; i++) {
+                r = r * (n - i + 1) / i;
+            }
+            return Math.round(r);
+        }
+
+        const ODDS = {
+            'special': 47,
+            'zhengma': 7,
+            'pingte_zodiac': 2,
+            'pingte_zodiac_ma': 1.8,
+            'pingte_tail': 1.8,
+            'pingte_tail_0': 2,
+            'combo_zodiac_2': 4,
+            'combo_zodiac_2_ma': 3.5,
+            'combo_zodiac_3': 10,
+            'combo_zodiac_3_ma': 9,
+            'combo_zodiac_4': 30,
+            'combo_zodiac_4_ma': 27,
+            'combo_zodiac_5': 100,
+            'combo_zodiac_5_ma': 80,
+            'combo_tail_2': 3,
+            'combo_tail_3': 7,
+            'combo_tail_4': 15,
+        };
+
+        function hasMa(items) {
+            if (!items) return false;
+            return items.some(item => item === '马');
+        }
+
+        function parseCombo(line) {
+            let comboList = [];
+            const comboRegex = /([二三四五])(?:连|有|友)/g;
+            let cm;
+            while ((cm = comboRegex.exec(line)) !== null) {
+                const k = COMBO_MAP[cm[1]];
+                if (k && !comboList.includes(k)) comboList.push(k);
+            }
+            const chars = line.match(/[二三四五]/g);
+            if (chars) {
+                for (const ch of chars) {
+                    const k = COMBO_MAP[ch];
+                    if (k && !comboList.includes(k)) comboList.push(k);
+                }
+            }
+            if (comboList.length === 0) return null;
+
+            let amtStr = '';
+            const amtMatch = line.match(/(\d+)$/);
+            if (amtMatch) {
+                amtStr = amtMatch[1];
+            }
+
+            let items = [];
+            let itemType = '';
+            const zodiacItems = line.match(/[鼠牛虎兔龙蛇马羊猴鸡狗猪]/g);
+            if (zodiacItems && zodiacItems.length > 0) {
+                items = zodiacItems;
+                itemType = '生肖';
+            } else {
+                let tailMatch = line.match(/(\d+)尾/);
+                if (!tailMatch) {
+                    tailMatch = line.match(/尾(\d+)/);
+                }
+                if (tailMatch) {
+                    let tailStr = tailMatch[1];
+                    if (amtStr && tailStr.endsWith(amtStr) && tailStr.length > amtStr.length) {
+                        tailStr = tailStr.slice(0, -amtStr.length);
+                    }
+                    if (tailStr.length > 0) {
+                        items = tailStr.split('').map(Number);
+                        itemType = '尾数';
+                    }
+                }
+            }
+
+            if (items.length === 0) return null;
+
+            const n = items.length;
+            let unitPrice = 1;
+            if (amtStr) {
+                unitPrice = parseInt(amtStr);
+            }
+
+            const validCombos = comboList.filter(k => k <= n);
+            if (validCombos.length === 0) return null;
+
+            let totalGroups = 0;
+            let detailParts = [];
+            for (const k of validCombos) {
+                const c = comb(n, k);
+                totalGroups += c;
+                const name = ({ 2: '二', 3: '三', 4: '四', 5: '五' } [k]) + '连';
+                detailParts.push(`${name}${c}组`);
+            }
+
+            const totalAmount = totalGroups * unitPrice;
+            const detailStr = detailParts.join(' + ');
+
+            return {
+                type: 'combo',
+                category: 'other',
+                items: items,
+                itemType: itemType,
+                comboList: validCombos,
+                unitPrice: unitPrice,
+                groups: totalGroups,
+                amount: totalAmount,
+                display: `${detailStr}，共 ${totalGroups} 组 × ${unitPrice}元 = ${totalAmount}元`,
+                raw: line
+            };
+        }
+
+        function parseSpecial(line) {
+            const match = line.match(/^(红单|红双|绿单|绿双|蓝单|蓝双|单|双|大|小|红|绿|蓝)(?:各|各数|各号|各码)?\s*(\d+)/);
+            if (!match) return null;
+
+            const type = match[1];
+            const price = parseInt(match[2]);
+
+            let items = [];
+            let itemType = '';
+
+            if (type === '单') { items = ODD_NUMBERS;
+                itemType = '单双'; } else if (type === '双') { items = EVEN_NUMBERS;
+                itemType = '单双'; } else if (type === '大') { items = BIG_NUMBERS;
+                itemType = '大小'; } else if (type === '小') { items = SMALL_NUMBERS;
+                itemType = '大小'; } else if (type === '红') { items = COLOR_TO_NUMBERS['红'];
+                itemType = '颜色'; } else if (type === '绿') { items = COLOR_TO_NUMBERS['绿'];
+                itemType = '颜色'; } else if (type === '蓝') { items = COLOR_TO_NUMBERS['蓝'];
+                itemType = '颜色'; } else if (['红单', '红双', '绿单', '绿双', '蓝单', '蓝双'].includes(type)) {
+                items = getSpecialColorNumbers(type);
+                itemType = '颜色单双';
+            }
+
+            if (items.length === 0) return null;
+
+            const total = items.length * price;
+
+            return {
+                type: 'expand',
+                category: 'special',
+                items: items,
+                itemType: itemType,
+                unitPrice: price,
+                count: items.length,
+                amount: total,
+                display: `共 ${items.length} 个号码 × ${price}元 = ${total}元`,
+                raw: line
+            };
+        }
+
+        function parseBet(line) {
+            line = line.trim();
+            if (!line) return null;
+            const originalLine = line;
+
+            // 冒号替换成"各"：冒号后面接金额，等同于"各"
+            line = line.replace(/[：:]/g, '/');
+
+            const specialResult = parseSpecial(line);
+            if (specialResult) return specialResult;
+
+            // ============================================================
+            // 平码单号：平码21/100
+            // ============================================================
+            const pingMaSingleMatch = line.match(/^(平码|平)(\d+)\s*\/\s*(\d+)$/);
+            if (pingMaSingleMatch) {
+                const num = parseInt(pingMaSingleMatch[2]);
+                const price = parseInt(pingMaSingleMatch[3]);
+                return {
+                    type: 'pingma',
+                    category: 'other',
+                    items: [num],
+                    itemType: '平码号码',
+                    unitPrice: price,
+                    count: 1,
+                    amount: price,
+                    display: `平码 ${num} × ${price}元 = ${price}元`,
+                    raw: originalLine
+                };
+            }
+
+
+            // ============================================================
+            // 平码投注解析：平码21、22、23各100
+            // ============================================================
+            const pingMaMatch = line.match(/^(平码|平)\s*([\d、，,.\s。！？；;！?、…—·/\-#号]+)(?:各|各数|各号|各码|每|每个)?\s*(\d+)$/);
+            if (pingMaMatch) {
+                const numsStr = pingMaMatch[2];
+                const price = parseInt(pingMaMatch[3]);
+                const nums = numsStr.match(/\d+/g);
+                if (nums && nums.length > 0) {
+                    const numbers = nums.map(Number);
+                    const uniqueNumbers = [];
+                    const seen = new Set();
+                    for (const n of numbers) {
+                        if (!seen.has(n)) {
+                            seen.add(n);
+                            uniqueNumbers.push(n);
+                        }
+                    }
+                    const count = uniqueNumbers.length;
+                    const total = count * price;
+                    return {
+                        type: 'pingma',
+                        category: 'other',
+                        items: uniqueNumbers,
+                        itemType: '平码号码',
+                        unitPrice: price,
+                        count: count,
+                        amount: total,
+                        display: `平码 ${uniqueNumbers.join('、')} 共 ${count} 个号码 × ${price}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+// ============================================================
+// 平特尾数+斜杠/冒号+金额：平特1尾/100、平特1尾：100
+// ============================================================
+const pingTeTailSlashMatch = line.match(/^(平特|平)\s*(\d+)尾\s*\/\s*(\d+)$/);
+if (pingTeTailSlashMatch) {
+    const tailStr = pingTeTailSlashMatch[2];
+    const price = parseInt(pingTeTailSlashMatch[3]);
+    const items = tailStr.split('').map(Number);
+    const total = items.length * price;
+    return {
+        type: 'pingte_tail',
+        category: 'other',
+        items: items,
+        itemType: '尾数',
+        unitPrice: price,
+        amount: total,
+        display: `${items.length}个尾数 × ${price}元 = ${total}元`,
+        raw: originalLine
+    };
+}
+
+
+// ============================================================
+// 平特单号：平特鸡/100（斜杠分隔），平特鸡：100 冒号替换后变成平特鸡/100
+// ============================================================
+const pingTeSlashMatch = line.match(/^(平特|平)([鼠牛虎兔龙蛇马羊猴鸡狗猪])\s*\/\s*(\d+)$/);
+if (pingTeSlashMatch) {
+    const zodiac = pingTeSlashMatch[2];
+    const price = parseInt(pingTeSlashMatch[3]);
+    const items = [zodiac];
+    const total = items.length * price;
+    return {
+        type: 'pingte_zodiac',
+        category: 'other',
+        items: items,
+        itemType: '生肖',
+        unitPrice: price,
+        amount: total,
+        display: `平特${zodiac} × ${price}元 = ${total}元`,
+        raw: originalLine
+    };
+}
+
+
+            if (/^(平特|平)/.test(line)) {
+                const fm = line.match(/^(平特|平)([鼠牛虎兔龙蛇马羊猴鸡狗猪]+)(\d+)$/);
+                if (fm) {
+                    const zStr = fm[2];
+                    const amt = parseInt(fm[3]);
+                    const items = zStr.split('');
+                    const total = items.length * amt;
+                    return {
+                        type: 'pingte_zodiac',
+                        category: 'other',
+                        items: items,
+                        itemType: '生肖',
+                        unitPrice: amt,
+                        amount: total,
+                        display: `${items.length}个生肖 × ${amt}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+
+                let cleanLine = line.replace(/\s/g, '');
+                let tailMatch = cleanLine.match(/平特?(\d+)尾各?(\d+)$/);
+                if (!tailMatch) {
+                    tailMatch = cleanLine.match(/平特?尾(\d+)各?(\d+)$/);
+                }
+                if (tailMatch) {
+                    const tailStr = tailMatch[1];
+                    const amt = parseInt(tailMatch[2]);
+                    const items = tailStr.split('').map(Number);
+                    const total = items.length * amt;
+                    return {
+                        type: 'pingte_tail',
+                        category: 'other',
+                        items: items,
+                        itemType: '尾数',
+                        unitPrice: amt,
+                        amount: total,
+                        display: `${items.length}个尾数 × ${amt}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+
+                const m = line.match(/(\d+)$/);
+                if (m) {
+                    const amt = parseInt(m[1]);
+                    return {
+                        type: 'pingte_simple',
+                        category: 'special',
+                        items: [],
+                        itemType: '简单',
+                        unitPrice: amt,
+                        amount: amt,
+                        display: `${amt}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            const comboResult = parseCombo(line);
+            if (comboResult) return comboResult;
+
+            const singleMatch = line.match(/^(\d+)([\/#号])(\d+)$/);
+            if (singleMatch) {
+                const price = parseInt(singleMatch[3]);
+                return {
+                    type: 'expand',
+                    category: 'special',
+                    items: [parseInt(singleMatch[1])],
+                    itemType: '号码',
+                    unitPrice: price,
+                    count: 1,
+                    amount: price,
+                    display: `1个号码 × ${price}元 = ${price}元`,
+                    raw: originalLine
+                };
+            }
+
+            const numZodiacMatch = line.match(/^(\d+)([鼠牛虎兔龙蛇马羊猴鸡狗猪]+)(?:各数|各号|各码|各)?\s*(\d+)$/);
+            if (numZodiacMatch) {
+                const num = parseInt(numZodiacMatch[1]);
+                const zodiacStr = numZodiacMatch[2];
+                const price = parseInt(numZodiacMatch[3]);
+                let numbers = [num];
+                const items = zodiacStr.split('');
+                for (const ch of items) {
+                    const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                    numbers = numbers.concat(nums);
+                }
+                const count = numbers.length;
+                const total = count * price;
+                return {
+                    type: 'expand',
+                    category: 'special',
+                    items: numbers,
+                    itemType: '号码(数字+生肖合并)',
+                    unitPrice: price,
+                    count: count,
+                    amount: total,
+                    display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                    raw: originalLine
+                };
+            }
+
+            const numSepZodiacMatch = line.match(/^(\d+)(?:[、，,.\s。！？；;！?、…—·\t\n\r]+)([鼠牛虎兔龙蛇马羊猴鸡狗猪]+)(?:各数|各号|各码|各)?\s*(\d+)$/);
+            if (numSepZodiacMatch) {
+                const num = parseInt(numSepZodiacMatch[1]);
+                const zodiacStr = numSepZodiacMatch[2];
+                const price = parseInt(numSepZodiacMatch[3]);
+                let numbers = [num];
+                const items = zodiacStr.split('');
+                for (const ch of items) {
+                    const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                    numbers = numbers.concat(nums);
+                }
+                const count = numbers.length;
+                const total = count * price;
+                return {
+                    type: 'expand',
+                    category: 'special',
+                    items: numbers,
+                    itemType: '号码(数字+生肖合并)',
+                    unitPrice: price,
+                    count: count,
+                    amount: total,
+                    display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                    raw: originalLine
+                };
+            }
+
+            const zodiacNumMergeMatch = line.match(/^([鼠牛虎兔龙蛇马羊猴鸡狗猪]+)(\d+)(?:各数|各号|各码|各)?\s*(\d+)$/);
+            if (zodiacNumMergeMatch) {
+                const zodiacStr = zodiacNumMergeMatch[1];
+                const num = parseInt(zodiacNumMergeMatch[2]);
+                const price = parseInt(zodiacNumMergeMatch[3]);
+                let numbers = [];
+                const items = zodiacStr.split('');
+                for (const ch of items) {
+                    const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                    numbers = numbers.concat(nums);
+                }
+                if (!numbers.includes(num)) {
+                    numbers.push(num);
+                }
+                const count = numbers.length;
+                const total = count * price;
+                return {
+                    type: 'expand',
+                    category: 'special',
+                    items: numbers,
+                    itemType: '号码(生肖+数字合并)',
+                    unitPrice: price,
+                    count: count,
+                    amount: total,
+                    display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                    raw: originalLine
+                };
+            }
+
+            const zodiacSepNumMatch = line.match(/^([鼠牛虎兔龙蛇马羊猴鸡狗猪]+)(?:[、，,.\s。！？；;！?、…—·\t\n\r]+)(\d+)(?:各数|各号|各码|各)?\s*(\d+)$/);
+            if (zodiacSepNumMatch) {
+                const zodiacStr = zodiacSepNumMatch[1];
+                const num = parseInt(zodiacSepNumMatch[2]);
+                const price = parseInt(zodiacSepNumMatch[3]);
+                let numbers = [];
+                const items = zodiacStr.split('');
+                for (const ch of items) {
+                    const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                    numbers = numbers.concat(nums);
+                }
+                if (!numbers.includes(num)) {
+                    numbers.push(num);
+                }
+                const count = numbers.length;
+                const total = count * price;
+                return {
+                    type: 'expand',
+                    category: 'special',
+                    items: numbers,
+                    itemType: '号码(生肖+数字合并)',
+                    unitPrice: price,
+                    count: count,
+                    amount: total,
+                    display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                    raw: originalLine
+                };
+            }
+
+            const zNumMatch = line.match(/^([鼠牛虎兔龙蛇马羊猴鸡狗猪]+(?:[、，,.\s。！？；;！?、…—·\t\n\r]*[鼠牛虎兔龙蛇马羊猴鸡狗猪]+)*)(\d+)$/);
+            if (zNumMatch) {
+                const rawStr = zNumMatch[1];
+                const price = parseInt(zNumMatch[2]);
+                let rawItems = rawStr.split(/[、，,.\s。！？；;！?、…—·\t\n\r]+/).filter(s => s.length > 0 && /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/
+                    .test(s));
+                let items = [];
+                for (const item of rawItems) {
+                    if (item.length === 1) {
+                        items.push(item);
+                    } else {
+                        const chars = item.split('').filter(ch => /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(ch));
+                        items = items.concat(chars);
+                    }
+                }
+                if (items.length > 0) {
+                    let count = 0;
+                    let numbers = [];
+                    for (const ch of items) {
+                        const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                        numbers = numbers.concat(nums);
+                        count += nums.length;
+                    }
+                    const total = count * price;
+                    return {
+                        type: 'expand',
+                        category: 'special',
+                        items: numbers,
+                        itemType: '号码(生肖展开)',
+                        unitPrice: price,
+                        count: count,
+                        amount: total,
+                        display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            const numZMatch = line.match(/^(\d+)([鼠牛虎兔龙蛇马羊猴鸡狗猪]+(?:[、，,.\s。！？；;！?、…—·\t\n\r]*[鼠牛虎兔龙蛇马羊猴鸡狗猪]+)*)$/);
+            if (numZMatch) {
+                const price = parseInt(numZMatch[1]);
+                const rawStr = numZMatch[2];
+                let rawItems = rawStr.split(/[、，,.\s。！？；;！?、…—·\t\n\r]+/).filter(s => s.length > 0 && /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/
+                    .test(s));
+                let items = [];
+                for (const item of rawItems) {
+                    if (item.length === 1) {
+                        items.push(item);
+                    } else {
+                        const chars = item.split('').filter(ch => /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(ch));
+                        items = items.concat(chars);
+                    }
+                }
+                if (items.length > 0) {
+                    let count = 0;
+                    let numbers = [];
+                    for (const ch of items) {
+                        const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                        numbers = numbers.concat(nums);
+                        count += nums.length;
+                    }
+                    const total = count * price;
+                    return {
+                        type: 'expand',
+                        category: 'special',
+                        items: numbers,
+                        itemType: '号码(生肖展开)',
+                        unitPrice: price,
+                        count: count,
+                        amount: total,
+                        display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            const zodiacMatch = line.match(
+                /([鼠牛虎兔龙蛇马羊猴鸡狗猪]+(?:[、，,.\s。！？；;！?、…—·\t\n\r]*[鼠牛虎兔龙蛇马羊猴鸡狗猪]+)*)(?:各数|各号|各码|各)?\s*(\d+)/
+                );
+            if (zodiacMatch) {
+                const rawStr = zodiacMatch[1];
+                const price = parseInt(zodiacMatch[2]);
+                let rawItems = rawStr.split(/[、，,.\s。！？；;！?、…—·\t\n\r]+/).filter(s => s.length > 0 && /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/
+                    .test(s));
+                let items = [];
+                for (const item of rawItems) {
+                    if (item.length === 1) {
+                        items.push(item);
+                    } else {
+                        const chars = item.split('').filter(ch => /[鼠牛虎兔龙蛇马羊猴鸡狗猪]/.test(ch));
+                        items = items.concat(chars);
+                    }
+                }
+                if (items.length > 0) {
+                    let count = 0;
+                    let numbers = [];
+                    for (const ch of items) {
+                        const nums = ZODIAC_TO_NUMBERS[ch] || [];
+                        numbers = numbers.concat(nums);
+                        count += nums.length;
+                    }
+                    const total = count * price;
+                    return {
+                        type: 'expand',
+                        category: 'special',
+                        items: numbers,
+                        itemType: '号码(生肖展开)',
+                        unitPrice: price,
+                        count: count,
+                        amount: total,
+                        display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            const colorMatch = line.match(
+                /([红绿蓝]+(?:[、，,.\s。！？；;！?、…—·\t\n\r]*[红绿蓝]+)*)(?:各数|各号|各码|各)?\s*(\d+)/
+                );
+            if (colorMatch) {
+                const rawStr = colorMatch[1];
+                const price = parseInt(colorMatch[2]);
+                const items = rawStr.split(/[、，,.\s。！？；;！?、…—·\t\n\r]+/).filter(s => s.length > 0 && /[红绿蓝]/.test(s));
+                if (items.length > 0) {
+                    let numbers = [];
+                    for (const ch of items) {
+                        const nums = COLOR_TO_NUMBERS[ch] || [];
+                        numbers = numbers.concat(nums);
+                    }
+                    const count = numbers.length;
+                    const total = count * price;
+                    return {
+                        type: 'expand',
+                        category: 'special',
+                        items: numbers,
+                        itemType: '号码(颜色展开)',
+                        unitPrice: price,
+                        count: count,
+                        amount: total,
+                        display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            const tm = line.match(
+                /(\d+)(?:[、，,.\s。！？；;！?、…—·]*)(\d*)(?:尾)(?:各数|各号|各码|各)?\s*(\d+)/
+                );
+            if (tm) {
+                const tailStr = tm[1] + (tm[2] || '');
+                const price = parseInt(tm[3]);
+                let numbers = [];
+                for (const ch of tailStr) {
+                    const d = parseInt(ch);
+                    if (!isNaN(d)) {
+                        if (d === 0) {
+                            numbers = numbers.concat([0, 10, 20, 30, 40]);
+                        } else {
+                            for (let n = d; n <= 49; n += 10) numbers.push(n);
+                        }
+                    }
+                }
+                const count = numbers.length;
+                const total = count * price;
+                return {
+                    type: 'expand',
+                    category: 'special',
+                    items: numbers,
+                    itemType: '号码(尾数展开)',
+                    unitPrice: price,
+                    count: count,
+                    amount: total,
+                    display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                    raw: originalLine
+                };
+            }
+
+            const lm = line.match(/([\d.、，,/\-\s#号]+)(?:各|各数|各号|各码|每|每个)\s*(\d+)/);
+            if (lm) {
+                const ns = lm[1];
+                const price = parseInt(lm[2]);
+                const nums = ns.match(/\d+/g);
+                if (nums && nums.length > 0) {
+                    const numbers = nums.map(Number);
+                    const count = numbers.length;
+                    const total = count * price;
+                    return {
+                        type: 'expand',
+                        category: 'special',
+                        items: numbers,
+                        itemType: '号码',
+                        unitPrice: price,
+                        count: count,
+                        amount: total,
+                        display: `共 ${count} 个号码 × ${price}元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            const hasKeyword = /各|数|号|码|平|特|连|有|友|肖|尾|红|绿|蓝|大|小|单|双/.test(line);
+            if (!hasKeyword) {
+                const nums = line.match(/\d+/g);
+                if (nums && nums.length > 0) {
+                    const numbers = nums.map(Number);
+                    const count = numbers.length;
+                    const total = count * 1;
+                    return {
+                        type: 'expand',
+                        category: 'special',
+                        items: numbers,
+                        itemType: '号码',
+                        unitPrice: 1,
+                        count: count,
+                        amount: total,
+                        display: `共 ${count} 个号码 × 1元 = ${total}元`,
+                        raw: originalLine
+                    };
+                }
+            }
+
+            return { type: 'error', category: 'other', raw: originalLine, display: '❌ 没识别出来' };
+        }
+
+        let lotteryResult = null;
+
+        function getLotteryResult() { return lotteryResult; }
+
+        function setLotteryResult(data) { lotteryResult = data; }
+
+        function calcBetWin(bet, result) {
+            if (!result) return { winAmount: 0, detail: '无开奖结果' };
+
+            const openCodes = result.codes || [];
+            const openZodiacs = result.zodiacs || [];
+            const openWaves = result.waves || [];
+            const teMa = openCodes.length > 0 ? openCodes[openCodes.length - 1] : null;
+            const allCodes = openCodes;
+
+            function countMatches(items, itemType) {
+                let matchCount = 0;
+                let matchedItems = [];
+                if (itemType === '生肖') {
+                    const tradToSimp = {
+                        '馬': '马', '龍': '龙', '雞': '鸡', '豬': '猪',
+                        '鼠': '鼠', '牛': '牛', '虎': '虎', '兔': '兔',
+                        '蛇': '蛇', '羊': '羊', '猴': '猴', '狗': '狗'
+                    };
+                    for (const item of items) {
+                        let matched = false;
+                        for (const z of openZodiacs) {
+                            const simZ = tradToSimp[z] || z;
+                            const simItem = tradToSimp[item] || item;
+                            if (simItem === simZ || item === z) {
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (matched) {
+                            matchCount++;
+                            matchedItems.push(item);
+                        }
+                    }
+                } else if (itemType === '尾数') {
+                    for (const item of items) {
+                        for (const code of allCodes) {
+                            if (code % 10 === item) {
+                                matchCount++;
+                                matchedItems.push(item);
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    for (const code of allCodes) {
+                        if (items.includes(code)) {
+                            matchCount++;
+                            matchedItems.push(code);
+                        }
+                    }
+                }
+                return { count: matchCount, matchedItems: matchedItems };
+            }
+
+            const type = bet.type;
+            let winAmount = 0;
+            let detail = '';
+
+            if (type === 'combo') {
+                const items = bet.items || [];
+                const itemType = bet.itemType || '';
+                const comboList = bet.comboList || [];
+                const unitPrice = bet.unitPrice || 1;
+
+                const matchResult = countMatches(items, itemType);
+                const m = matchResult.count;
+
+                if (m < 2) {
+                    return { winAmount: 0, detail: '未中奖（匹配 ' + m + ' 个）' };
+                }
+
+                let detailParts = [];
+                let isZodiac = (itemType === '生肖');
+                let isTail = (itemType === '尾数');
+
+                // 判断匹配的生肖中是否包含"马"
+                const matchedItems = matchResult.matchedItems || [];
+                const hasMaInMatch = matchedItems.some(item => item === '马' || item === '馬');
+
+                for (const k of comboList) {
+                    const groups = comb(m, k);
+                    if (groups > 0) {
+                        let odds = 0;
+                        let partWin = 0;
+                        const name = ({ 2: '二', 3: '三', 4: '四', 5: '五' } [k]) + '连';
+
+                        if (isZodiac) {
+                            // 计算带马和不带马的组合数
+                            // 如果匹配的生肖中有马，则带马组合数 = C(m-1, k-1)
+                            let combosWithMa = 0;
+                            let combosWithoutMa = 0;
+                            
+                            if (hasMaInMatch && m >= 1) {
+                                combosWithMa = comb(m - 1, k - 1);
+                            }
+                            combosWithoutMa = groups - combosWithMa;
+
+                            let oddsWithMa, oddsWithoutMa;
+                            if (k === 2) { oddsWithMa = 3.5; oddsWithoutMa = 4; }
+                            else if (k === 3) { oddsWithMa = 9; oddsWithoutMa = 10; }
+                            else if (k === 4) { oddsWithMa = 27; oddsWithoutMa = 30; }
+                            else if (k === 5) { oddsWithMa = 80; oddsWithoutMa = 100; }
+
+                            const winWithMa = combosWithMa * unitPrice * oddsWithMa;
+                            const winWithoutMa = combosWithoutMa * unitPrice * oddsWithoutMa;
+                            partWin = winWithMa + winWithoutMa;
+                            winAmount += partWin;
+
+                            let detailStr = '';
+                            if (combosWithMa > 0 && combosWithoutMa > 0) {
+                                detailStr = `${name}${combosWithMa}组×${unitPrice}×${oddsWithMa}倍=${winWithMa} + ${name}${combosWithoutMa}组×${unitPrice}×${oddsWithoutMa}倍=${winWithoutMa}`;
+                            } else if (combosWithMa > 0) {
+                                detailStr = `${name}${combosWithMa}组×${unitPrice}×${oddsWithMa}倍=${winWithMa}`;
+                            } else {
+                                detailStr = `${name}${combosWithoutMa}组×${unitPrice}×${oddsWithoutMa}倍=${winWithoutMa}`;
+                            }
+                            detailParts.push(detailStr);
+
+                        } else if (isTail) {
+                            if (k === 2) odds = ODDS['combo_tail_2'];
+                            else if (k === 3) odds = ODDS['combo_tail_3'];
+                            else if (k === 4) odds = ODDS['combo_tail_4'];
+                            partWin = groups * unitPrice * odds;
+                            winAmount += partWin;
+                            detailParts.push(`${name}${groups}组×${unitPrice}×${odds}倍=${partWin}`);
+                        }
+                    }
+                }
+
+                if (winAmount === 0) {
+                    return { winAmount: 0, detail: '未中奖（匹配 ' + m + ' 个）' };
+                }
+                detail = detailParts.join(' + ');
+                return { winAmount: Math.round(winAmount), detail: detail };
+            }
+
+            if (type === 'pingma') {  // ← 去掉 }，改成 if
+                // 平码中奖：赔率 7 倍，6个平码中任意一个数字中了就算中
+                const items = bet.items || [];
+                const unitPrice = bet.unitPrice || 1;
+                const pingMaCodes = allCodes.slice(0, 6);
+                let hitCount = 0;
+                let hitNumbers = [];
+                for (const num of items) {
+                    if (pingMaCodes.includes(num)) {
+                        hitCount++;
+                        hitNumbers.push(num);
+                    }
+                }
+                if (hitCount === 0) {
+                    return { winAmount: 0, detail: '未中奖' };
+                }
+                const totalWin = hitCount * unitPrice * 7;
+                detail = `${hitNumbers.join('、')} 命中 ${hitCount} 个 × ${unitPrice} × 7倍 = ${Math.round(totalWin)}`;
+                return { winAmount: Math.round(totalWin), detail: detail };
+
+            } else if (type === 'pingte_zodiac') {
+                const items = bet.items || [];
+                const unitPrice = bet.unitPrice || 1;
+                const openZodiacs = result.zodiacs || [];
+                const tradToSimp = {
+                    '馬': '马', '龍': '龙', '雞': '鸡', '豬': '猪',
+                    '鼠': '鼠', '牛': '牛', '虎': '虎', '兔': '兔',
+                    '蛇': '蛇', '羊': '羊', '猴': '猴', '狗': '狗'
+                };
+                let hitCount = 0;
+                let hitDetails = [];
+                for (const item of items) {
+                    const simItem = tradToSimp[item] || item;
+                    let isHit = false;
+                    for (const z of openZodiacs) {
+                        const simZ = tradToSimp[z] || z;
+                        if (simItem === simZ || item === z) {
+                            isHit = true;
+                            break;
+                        }
+                    }
+                    if (isHit) {
+                        hitCount++;
+                        const hasMaFlag = (item === '马' || item === '馬');
+                        const odds = hasMaFlag ? ODDS['pingte_zodiac_ma'] : ODDS['pingte_zodiac'];
+                        const win = unitPrice * odds;
+                        hitDetails.push(`${item}中${win}元`);
+                        winAmount += win;
+                    }
+                }
+                if (hitCount === 0) {
+                    return { winAmount: 0, detail: '未中奖' };
+                }
+                detail = hitDetails.join('；') + `，共${Math.round(winAmount)}元`;
+                return { winAmount: Math.round(winAmount), detail: detail };
+
+            } else if (type === 'pingte_tail') {
+                const items = bet.items || [];
+                const unitPrice = bet.unitPrice || 1;
+                const matchResult = countMatches(items, '尾数');
+                const matchedCount = matchResult.count;
+                if (matchedCount === 0) {
+                    return { winAmount: 0, detail: '未中奖' };
+                }
+                const hasZeroTail = items.some(item => item === 0);
+                const odds = hasZeroTail ? ODDS['pingte_tail_0'] : ODDS['pingte_tail'];
+                winAmount = matchedCount * unitPrice * odds;
+                detail = `${matchedCount}个尾数 × ${unitPrice} × ${odds}倍 = ${Math.round(winAmount)}`;
+                return { winAmount: Math.round(winAmount), detail: detail };
+
+            } else if (type === 'pingte_simple') {
+                return { winAmount: 0, detail: '简单平特需指定号码/生肖/尾数' };
+
+            } else if (type === 'expand') {
+                const items = bet.items || [];
+                const unitPrice = bet.unitPrice || 1;
+                if (teMa === null) {
+                    return { winAmount: 0, detail: '无特码' };
+                }
+                const hitCount = items.filter(n => n === teMa).length;
+                if (hitCount > 0) {
+                    winAmount = hitCount * unitPrice * ODDS['special'];
+                    const priceParts = Array(hitCount).fill(unitPrice).join('+');
+                    detail = `${priceParts}=${hitCount * unitPrice} × 47倍 = ${winAmount}`;
+                    return { winAmount: Math.round(winAmount), detail: detail };
+                } else {
+                    return { winAmount: 0, detail: `特码${teMa}未命中` };
+                }
+
+            } else {
+                return { winAmount: 0, detail: '未知类型' };
+            }
+        }
+
+        let history = [];
+
+        function getWaterRate() {
+            const input = document.getElementById('waterRate');
+            return parseFloat(input.value) || 0;
+        }
+
+        function calcBets() {
+            const input = document.getElementById('betInput');
+            const lines = input.value.split('\n').filter(l => l.trim());
+            history = [];
+            let total = 0;
+            const totalParts = [];
+            let hasError = false;
+
+            const result = getLotteryResult();
+
+            for (const line of lines) {
+                if (/^\d+$/.test(line.trim())) continue;
+                const bet = parseBet(line);
+                if (bet) {
+                    if (bet.type === 'error') {
+                        hasError = true;
+                        bet.winAmount = 0;
+                        bet.winDetail = '解析失败';
+                    } else {
+                        total += bet.amount;
+                        totalParts.push(String(bet.amount));
+                        const winResult = calcBetWin(bet, result);
+                        bet.winAmount = winResult.winAmount || 0;
+                        bet.winDetail = winResult.detail || '未中奖';
+                    }
+                    history.push(bet);
+                }
+            }
+
+            const waterRate = getWaterRate() / 100;
+            const shuiQian = total * waterRate;
+            const shuiQianDisplay = shuiQian.toFixed(2);
+
+            let specialWin = 0;
+            let otherWin = 0;
+            let totalWin = 0;
+            const otherWinParts = [];
+            const specialPriceParts = [];
+
+            for (const bet of history) {
+                if (bet.winAmount && bet.winAmount > 0) {
+                    totalWin += bet.winAmount;
+                    if (bet.category === 'special') {
+                        specialWin += bet.winAmount;
+                        const detail = bet.winDetail || '';
+                        const match = detail.match(/([\d\+]+)=(\d+) × 47倍 = (\d+)/);
+                        if (match) {
+                            const pricePart = match[1];
+                            const prices = pricePart.split('+').map(Number);
+                            specialPriceParts.push(...prices);
+                        } else {
+                            const price = bet.unitPrice || bet.amount || 0;
+                            specialPriceParts.push(price);
+                        }
+                    } else {
+                        otherWin += bet.winAmount;
+                        otherWinParts.push(String(bet.winAmount));
+                    }
+                }
+            }
+
+            const box = document.getElementById('resultBox');
+
+            if (history.length === 0) {
+                box.innerHTML = '<div class="empty-result">未识别到有效投注</div>';
+            } else {
+                let html = '';
+
+                html += `<div>${totalParts.join('+')}=${total}</div>`;
+
+                html += `<div>${total}×${(waterRate * 100).toFixed(1)}%=${shuiQianDisplay}</div>`;
+
+                if (specialPriceParts.length > 0) {
+                    const priceStr = specialPriceParts.map((p, index) => index === 0 ? '特' + p : p).join('+');
+                    const totalSpecialBetAmount = specialPriceParts.reduce((sum, p) => sum + p, 0);
+                    html += `<div>${priceStr}=${totalSpecialBetAmount}×47倍=${Math.round(specialWin)}</div>`;
+                } else if (specialWin > 0) {
+                    html += `<div>特码中奖：${Math.round(specialWin)}</div>`;
+                } else {
+                    html += `<div>特码中奖：0</div>`;
+                }
+
+                if (otherWin > 0) {
+                    const otherStr = otherWinParts.length > 0 ? otherWinParts.join('+') : String(otherWin);
+                    html += `<div>其他中奖：${otherStr}=${Math.round(otherWin)}</div>`;
+                } else {
+                    html += `<div>其他中奖：0</div>`;
+                }
+
+                const profit = totalWin + shuiQian - total;
+                const roundedProfit = Math.round(profit);
+                const profitSign = roundedProfit >= 0 ? '' : '-';
+                const profitLabel = roundedProfit >= 0 ? '赢' : '输';
+                html += `<div>${Math.round(totalWin)}+${shuiQianDisplay}-${total}=${profitSign}${Math.abs(roundedProfit)}${profitLabel}</div>`;
+
+                if (hasError) {
+                    html += `<div class="error">⚠️ 部分投注未识别，请检查格式</div>`;
+                }
+
+                html +=
+                    `<button class="btn-secondary btn-sm" id="copyFormulaBtn" style="margin-top:8px; padding:4px 12px; border:1px solid #dce1e8; border-radius:6px;">📋 复制结果</button>`;
+                box.innerHTML = html;
+
+                const copyBtn = document.getElementById('copyFormulaBtn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', function() {
+                        let lines = [];
+                        lines.push(`${totalParts.join('+')}=${total}`);
+                        lines.push(`${total}×${(waterRate * 100).toFixed(1)}%=${shuiQianDisplay}`);
+                        if (specialPriceParts.length > 0) {
+                            const priceStr = specialPriceParts.map((p, index) => index === 0 ? '特' + p : p).join(
+                            '+');
+                            const totalSpecialBetAmount = specialPriceParts.reduce((sum, p) => sum + p, 0);
+                            lines.push(
+                                `${priceStr}=${totalSpecialBetAmount}×47倍=${Math.round(specialWin)}`);
+                        } else {
+                            lines.push(`特码中奖：${Math.round(specialWin)}`);
+                        }
+                        if (otherWin > 0) {
+                            const otherStr = otherWinParts.length > 0 ? otherWinParts.join('+') : String(otherWin);
+                            lines.push(`其他中奖：${otherStr}=${Math.round(otherWin)}`);
+                        } else {
+                            lines.push('其他中奖：0');
+                        }
+                        const profitLabel = roundedProfit >= 0 ? '赢' : '输';
+                        lines.push(
+                            `${Math.round(totalWin)}+${shuiQianDisplay}-${total}=${profitSign}${Math.abs(roundedProfit)}${profitLabel}`
+                            );
+                        navigator.clipboard.writeText(lines.join('\n')).then(() => {
+                            this.textContent = '✅ 已复制';
+                            setTimeout(() => this.textContent = '📋 复制结果', 1500);
+                        }).catch(() => {
+                            const ta = document.createElement('textarea');
+                            ta.value = lines.join('\n');
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            ta.remove();
+                            this.textContent = '✅ 已复制';
+                            setTimeout(() => this.textContent = '📋 复制结果', 1500);
+                        });
+                    });
+                }
+            }
+
+            renderHistory();
+            document.getElementById('countDisplay').textContent = `共 ${history.length} 条`;
+            document.getElementById('timeDisplay').textContent = new Date().toLocaleTimeString();
+
+            autoResizeInput();
+        }
+
+        function renderHistory() {
+            const c = document.getElementById('historyList');
+            if (history.length === 0) {
+                c.innerHTML = '<div class="empty-history">暂无记录</div>';
+                return;
+            }
+            let html = '';
+            for (const item of history) {
+                if (item.type === 'error') {
+                    html += `<div class="history-item error-item">
+                <div class="h-text h-error">${item.raw}</div>
+                <div class="h-detail h-error">❌ 未识别</div>
+            </div>`;
+                } else {
+                    const winAmount = item.winAmount || 0;
+                    const winDetail = item.winDetail || '未中奖';
+                    const winClass = winAmount > 0 ? 'h-win' : 'h-lose';
+                    const winText = winAmount > 0 ? `✅ 中奖 ${Math.round(winAmount)}元 (${winDetail})` : `❌ ${winDetail}`;
+                    html += `<div class="history-item">
+                <div class="h-text">${item.raw}</div>
+                <div class="h-detail">${item.display}</div>
+                <div class="${winClass}">${winText}</div>
+            </div>`;
+                }
+            }
+            c.innerHTML = html;
+        }
+
+        function clearAll() {
+            history = [];
+            document.getElementById('resultBox').innerHTML = '<div class="empty-result">已清空</div>';
+            document.getElementById('historyList').innerHTML = '<div class="empty-history">暂无记录</div>';
+            document.getElementById('betInput').value = '';
+            document.getElementById('countDisplay').textContent = '共 0 条';
+            document.getElementById('timeDisplay').textContent = '';
+            autoResizeInput();
+        }
+
+        function autoResizeInput() {
+            const el = document.getElementById('betInput');
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+
+        function pasteAndAppend() {
+            try {
+                var text = window.AndroidClipboard.getText();
+                if (text && text.trim()) {
+                    var input = document.getElementById("betInput");
+                    var current = input.value;
+                    var separator = (current && current.trim() !== "") ? "\n" : "";
+                    input.value = current + separator + text.trim();
+                    input.dispatchEvent(new Event("input"));
+                    input.scrollTop = input.scrollHeight;
+                }
+            } catch (e) {}
+        }
+
+        const API_URL = 'https://macaumarksix.com/api/live2';
+        const CLEAR_HOUR = 21;
+        const CLEAR_MINUTE = 30;
+        const DRAW_HOUR = 21;
+        const DRAW_MINUTE = 33;
+
+        let lastPeriodCache = '';
+        let hasClearedForNewDraw = false;
+        let isPolling = false;
+        let isDrawTriggered = false;
+        let pollingTimer = null;
+        const RETRY_INTERVAL = 3000;
+
+        const lotteryDateEl = document.getElementById('lotteryDate');
+        const lotteryPeriodEl = document.getElementById('lotteryPeriod');
+        const lotteryNumbersEl = document.getElementById('lotteryNumbers');
+
+        function createNumberBox(num, zodiac, wave, isPlaceholder = false) {
+            const box = document.createElement('div');
+            const colorMap = { 'red': 'red-ball', 'green': 'green-ball', 'blue': 'blue-ball' };
+            const ballClass = colorMap[wave] || 'blue-ball';
+            box.className = `number-box ${isPlaceholder ? 'placeholder' : ballClass}`;
+            box.innerHTML = `
+        <div class="num">${isPlaceholder ? '?' : String(num).padStart(2, '0')}</div>
+        <div class="draw-txt">${isPlaceholder ? '--' : zodiac}</div>
+        `;
+            return box;
+        }
+
+        function renderPlaceholders() {
+            lotteryNumbersEl.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                lotteryNumbersEl.appendChild(createNumberBox(null, null, null, true));
+            }
+            const label = document.createElement('div');
+            label.className = 'special-label';
+            label.textContent = '特码';
+            lotteryNumbersEl.appendChild(label);
+            lotteryNumbersEl.appendChild(createNumberBox(null, null, null, true));
+        }
+
+        function displayAllNumbers(codes, waves, zodiacs, period, openTime) {
+            const dateStr = openTime ? openTime.split(' ')[0] : '';
+            lotteryDateEl.textContent = '📅 ' + dateStr;
+            lotteryPeriodEl.textContent = period ? period.replace('2026', '') + '期' : '';
+
+            lotteryNumbersEl.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const num = codes[i] || '--';
+                const zodiacName = zodiacs[i] || '--';
+                const waveColor = waves[i] || 'blue';
+                lotteryNumbersEl.appendChild(createNumberBox(num, zodiacName, waveColor, false));
+            }
+            const label = document.createElement('div');
+            label.className = 'special-label';
+            label.textContent = '特码';
+            lotteryNumbersEl.appendChild(label);
+            const specialNum = codes[6] || '--';
+            const specialZodiac = zodiacs[6] || '--';
+            const specialWave = waves[6] || 'blue';
+            lotteryNumbersEl.appendChild(createNumberBox(specialNum, specialZodiac, specialWave, false));
+        }
+
+        function displayNumbersOneByOne(codes, waves, zodiacs, period, openTime) {
+            const dateStr = openTime ? openTime.split(' ')[0] : '';
+            lotteryDateEl.textContent = '📅 ' + dateStr;
+            lotteryPeriodEl.textContent = period ? period.replace('2026', '') + '期' : '';
+
+            lotteryNumbersEl.innerHTML = '';
+            const items = [];
+            for (let i = 0; i < 6; i++) {
+                items.push({ num: codes[i] || '--', zodiac: zodiacs[i] || '--', wave: waves[i] || 'blue',
+                    isSpecial: false });
+            }
+            items.push({ num: codes[6] || '--', zodiac: zodiacs[6] || '--', wave: waves[6] || 'blue', isSpecial: true });
+
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index >= items.length) {
+                    clearInterval(interval);
+                    calcBets();
+                    return;
+                }
+
+                const item = items[index];
+                if (item.isSpecial) {
+                    const label = document.createElement('div');
+                    label.className = 'special-label';
+                    label.textContent = '特码';
+                    lotteryNumbersEl.appendChild(label);
+                }
+                lotteryNumbersEl.appendChild(createNumberBox(item.num, item.zodiac, item.wave, false));
+                index++;
+            }, 350);
+        }
+
+        async function fetchAndDisplayLottery(force = false, skipAnimation = false) {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('网络请求失败');
+                const data = await response.json();
+                if (!data || data.length === 0) throw new Error('未获取到数据');
+
+                const item = data[0];
+                const openCode = item.openCode || '';
+                const wave = item.wave || '';
+                const zodiac = item.zodiac || '';
+                const period = item.expect || '';
+                const openTime = item.openTime || '';
+
+                const now = new Date();
+                const currentTotalSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                const clearTime = CLEAR_HOUR * 3600 + CLEAR_MINUTE * 60;
+                const drawTime = DRAW_HOUR * 3600 + DRAW_MINUTE * 60;
+
+                if (currentTotalSec < clearTime) {
+                    if (openCode && openCode.trim() !== '') {
+                        const codes = openCode.split(',').map(s => parseInt(s.trim()));
+                        const waves = wave.split(',').map(s => s.trim().toLowerCase());
+                        const zodiacs = zodiac.split(',').map(s => s.trim());
+                        if (codes.length >= 7) {
+                            if (period !== lastPeriodCache || force) {
+                                lastPeriodCache = period;
+                                displayAllNumbers(codes, waves, zodiacs, period, openTime);
+                                setLotteryResult({ codes, waves, zodiacs });
+                                calcBets();
+                            }
+                            return true;
+                        }
+                    }
+                    renderPlaceholders();
+                    return false;
+                }
+
+                if (currentTotalSec >= clearTime && currentTotalSec < drawTime) {
+                    if (!hasClearedForNewDraw) {
+                        hasClearedForNewDraw = true;
+                        renderPlaceholders();
+                        lotteryDateEl.textContent = '📅 等待新期开奖...';
+                        lotteryPeriodEl.textContent = '——';
+                        setLotteryResult(null);
+                        calcBets();
+                    }
+                    return false;
+                }
+
+                if (currentTotalSec >= drawTime) {
+                    if (openCode && openCode.trim() !== '') {
+                        const codes = openCode.split(',').map(s => parseInt(s.trim()));
+                        const waves = wave.split(',').map(s => s.trim().toLowerCase());
+                        const zodiacs = zodiac.split(',').map(s => s.trim());
+                        if (codes.length >= 7) {
+                            if (period !== lastPeriodCache || force) {
+                                lastPeriodCache = period;
+                                if (skipAnimation || isDrawTriggered) {
+                                    displayAllNumbers(codes, waves, zodiacs, period, openTime);
+                                } else {
+                                    displayNumbersOneByOne(codes, waves, zodiacs, period, openTime);
+                                }
+                                setLotteryResult({ codes, waves, zodiacs });
+                                hasClearedForNewDraw = false;
+                                isDrawTriggered = true;
+                                calcBets();
+                                if (pollingTimer) {
+                                    clearInterval(pollingTimer);
+                                    pollingTimer = null;
+                                    isPolling = false;
+                                    console.log('✅ 开奖完成，轮询已停止');
+                                }
+                                return true;
+                            } else {
+                                const isShowingPlaceholder = lotteryNumbersEl.querySelector('.placeholder') !== null;
+                                if (isShowingPlaceholder) {
+                                    displayAllNumbers(codes, waves, zodiacs, period, openTime);
+                                    setLotteryResult({ codes, waves, zodiacs });
+                                    calcBets();
+                                }
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                return false;
+
+            } catch (error) {
+                console.error('获取开奖信息失败:', error);
+                lotteryNumbersEl.innerHTML = `<div class="lottery-error">⚠️ 加载开奖信息失败：${error.message}</div>`;
+                return false;
+            }
+        }
+
+        function startPolling() {
+            if (isPolling) return;
+            isPolling = true;
+            console.log('🔄 开始轮询开奖数据...');
+
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+                pollingTimer = null;
+            }
+
+            pollingTimer = setInterval(async () => {
+                const success = await fetchAndDisplayLottery();
+                if (isDrawTriggered && success) {
+                    clearInterval(pollingTimer);
+                    pollingTimer = null;
+                    isPolling = false;
+                    console.log('✅ 开奖完成，轮询已停止');
+                }
+            }, RETRY_INTERVAL);
+
+            fetchAndDisplayLottery().then(success => {
+                if (isDrawTriggered && success) {
+                    clearInterval(pollingTimer);
+                    pollingTimer = null;
+                    isPolling = false;
+                    console.log('✅ 开奖完成，轮询已停止');
+                }
+            });
+        }
+
+        function scheduler() {
+            const now = new Date();
+            const currentTotalSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const clearTime = CLEAR_HOUR * 3600 + CLEAR_MINUTE * 60;
+            const drawTime = DRAW_HOUR * 3600 + DRAW_MINUTE * 60;
+
+            if (currentTotalSec < clearTime) {
+                if (!window._lotteryLoaded) {
+                    fetchAndDisplayLottery();
+                    window._lotteryLoaded = true;
+                }
+                return;
+            }
+
+            if (currentTotalSec >= clearTime && currentTotalSec < drawTime) {
+                if (!isPolling && !isDrawTriggered) {
+                    startPolling();
+                }
+                return;
+            }
+
+            if (currentTotalSec >= drawTime) {
+                if (!isDrawTriggered) {
+                    if (!isPolling) {
+                        startPolling();
+                    }
+                }
+            }
+        }
+
+        window.onload = function() {
+            const refreshBtn = document.getElementById('refreshLotteryBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.innerHTML = '<div class="refresh-icon">⏳</div><div class="refresh-text">加载</div>';
+                    this.style.opacity = '0.6';
+                    this.style.pointerEvents = 'none';
+                    fetchAndDisplayLottery(true, true).finally(() => {
+                        this.innerHTML = '<div class="refresh-icon">🔄</div><div class="refresh-text">刷新</div>';
+                        this.style.opacity = '1';
+                        this.style.pointerEvents = 'auto';
+                    });
+                });
+            }
+
+            document.getElementById('pasteBtn').addEventListener('click', pasteAndAppend);
+
+            const betInput = document.getElementById('betInput');
+            betInput.addEventListener('input', function() {
+                autoResizeInput();
+                calcBets();
+            });
+
+            document.getElementById('waterRate').addEventListener('input', function() {
+                calcBets();
+            });
+
+            autoResizeInput();
+
+            renderPlaceholders();
+            setInterval(scheduler, 1000);
+            scheduler();
+            console.log('✅ 投注计算器已启动');
+        };
+
+        window.refreshLottery = fetchAndDisplayLottery;
+    </script>
 </body>
 </html>
